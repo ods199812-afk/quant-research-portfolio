@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Regime-conditioned equity factor allocation: a three-state Gaussian HMM combined with cross-sectional IC-based factor weights, with an out-of-sample prototype comparison.">
+<title>Regime-Conditioned Factor Allocation | Quant Research</title>
+<style>
+:root{--navy:#14283b;--teal:#135d77;--text:#42586a;--muted:#667c8d;--border:#dbe5e9;--pale:#f6f9fa;--amber:#946b38}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--navy);font:15px/1.74 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;background:white}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:1060px;width:calc(100% - 48px);margin:auto}
+header{border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:10}.nav{height:69px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:20px;font-weight:800;letter-spacing:-.05em;color:var(--navy)}.brand span{color:var(--teal)}.back{font-size:13px;font-weight:700}
+.hero{padding:72px 0 56px;border-bottom:1px solid var(--border);background:radial-gradient(circle at 95% 15%,#e4f3f6,transparent 38%),linear-gradient(170deg,#fff,#f9fbfc)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(35px,5.3vw,61px);line-height:1.12;letter-spacing:-.05em;max-width:850px;margin:16px 0 16px}h2{font-size:clamp(24px,3.1vw,32px);line-height:1.2;letter-spacing:-.03em;margin:10px 0 18px}h3{font-size:16px;margin:0 0 8px;letter-spacing:-.02em}.lead{font-size:18px;max-width:820px;line-height:1.65;color:var(--text);margin:0 0 22px}.tags{display:flex;flex-wrap:wrap;gap:9px}.tag{font-size:12px;font-weight:680;padding:5px 11px;border:1px solid var(--border);background:white;border-radius:20px;color:#3e6273}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:34px}.metric{border:1px solid var(--border);background:#fff;padding:17px 18px;border-radius:10px}.metric strong{display:block;line-height:1.25;font-size:26px;letter-spacing:-.025em}.metric span{display:block;margin-top:6px;color:var(--muted);font-size:12px}
+main{padding-bottom:40px}section{padding:57px 0;border-bottom:1px solid var(--border);scroll-margin-top:75px}.section-head{max-width:850px}.section-head p,.muted{color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.box{padding:19px 19px 17px;background:var(--pale);border:1px solid var(--border);border-radius:10px}.box p{font-size:13.5px;margin:0;color:var(--text)}
+.pipeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:23px 0}.pipeline .step{padding:15px 12px;border:1px solid #d8e3e8;border-radius:9px;background:#f8fbfc;min-height:110px}.step .num{font-size:10px;color:var(--teal);letter-spacing:.12em;font-weight:800}.step strong{display:block;font-size:13px;line-height:1.38;margin-top:7px}.step span:last-child{font-size:11px;line-height:1.4;color:var(--muted);display:block;margin-top:6px}
+.figure{margin:25px 0 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:white}.figure img{width:100%;height:auto;display:block}.figure figcaption{border-top:1px solid #e9eef1;padding:11px 17px;color:var(--muted);font-size:12px;line-height:1.6}
+.tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-top:20px}table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}th,td{padding:12px 16px;border-bottom:1px solid #e9eef1;text-align:right}tr:last-child td{border-bottom:0}th:first-child,td:first-child{text-align:left}th{background:#f4f8fa;font-size:12px;color:#40586b;font-weight:760}.subtle{font-size:12px;color:var(--muted)}
+.callout{background:#f6f9fa;border-left:3px solid var(--teal);padding:16px 20px;border-radius:5px;margin:19px 0;color:var(--text)}.callout strong{color:var(--navy)}.caution{background:#fbf8f3;border-left-color:#b98b54}.note-list{padding-left:21px;color:var(--text)}.note-list li{margin:8px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:17px}.button{display:inline-flex;background:var(--teal);color:white;font-size:13px;font-weight:750;padding:11px 15px;border-radius:7px}.button:hover{background:#114e65;color:white;text-decoration:none}
+footer{font-size:12px;color:var(--muted);padding:26px 0 34px}
+@media(max-width:750px){.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.pipeline{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.hero{padding:48px 0 38px}section{padding:42px 0}}
+@media(max-width:440px){.wrap{width:calc(100% - 30px)}.pipeline{grid-template-columns:1fr}.metrics{gap:8px}.metric{padding:14px 12px}.metric strong{font-size:21px}.back{font-size:12px}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="./index.html">JL<span>.</span></a><a class="back" href="./index.html#research">← All research projects</a></div></header>
+<div class="hero"><div class="wrap">
+<div class="eyebrow">Research case study / Statistical modeling × equity factors</div>
+<h1>Regime-Conditioned<br>Factor Allocation</h1>
+<p class="lead">Can latent market states improve cross-sectional factor allocation? A research prototype combining a three-state Gaussian Hidden Markov Model, state-conditional information coefficients, and a long-only equity portfolio.</p>
+<div class="tags"><span class="tag">Python</span><span class="tag">Gaussian HMM</span><span class="tag">Causal filtering</span><span class="tag">Cross-sectional IC</span><span class="tag">Portfolio backtesting</span></div>
+<div class="metrics"><div class="metric"><strong>3</strong><span>Latent market states</span></div><div class="metric"><strong>13</strong><span>Technical &amp; fundamental factors</span></div><div class="metric"><strong>19</strong><span>Test-period rebalances</span></div><div class="metric"><strong>3</strong><span>Factor allocation approaches</span></div></div>
+</div></div>
+<main class="wrap">
+<section id="question"><div class="eyebrow">01 / Question &amp; design</div><h2>Does a changing market call for changing factor weights?</h2>
+<p class="muted">A static equity factor model assumes one set of coefficients remains useful across market conditions. This project tests a more adaptive approach: infer a latent state from market-wide observations and use historical, state-dependent factor IC estimates to score individual stocks.</p>
+<div class="pipeline"><div class="step"><div class="num">01</div><strong>Stock-level data</strong><span>Returns, fundamentals and forecasts</span></div><div class="step"><div class="num">02</div><strong>Factor IC research</strong><span>13 standardized signals</span></div><div class="step"><div class="num">03</div><strong>Gaussian HMM</strong><span>3 latent market states</span></div><div class="step"><div class="num">04</div><strong>Regime-aware scores</strong><span>Filtered state probabilities</span></div><div class="step"><div class="num">05</div><strong>Portfolio comparison</strong><span>Soft, Hard and Static IC</span></div></div>
+<div class="grid"><div class="box"><h3>State representation</h3><p>Market breadth, cross-sectional return dispersion, average and absolute returns, with rolling aggregates derived from the equity universe.</p></div><div class="box"><h3>Equity factor universe</h3><p>10/20-day momentum and volatility, valuation, profitability, growth, dividend yield, beta and sales growth expectations.</p></div><div class="box"><h3>Evaluation setup</h3><p>Chronological training/test split, a 20-trading-day return target, and a top-50 long-only portfolio rebalanced approximately every 20 trading days.</p></div></div>
+</section>
+<section id="method"><div class="eyebrow">02 / Method</div><h2>Separate market-state inference from stock selection</h2>
+<div class="two"><div><h3>Fit, then filter</h3><p class="muted">The Gaussian HMM and feature scaler are fitted on the training segment. Test-period state probabilities are estimated causally using observations available up to each date, rather than whole-sequence smoothing. Train-period factor ICs determine state-specific coefficient vectors.</p></div><div><h3>Compare three allocation rules</h3><p class="muted"><strong>Soft:</strong> average state-dependent coefficients using filtered probabilities. <strong>Hard:</strong> use coefficients of the most probable state. <strong>Static:</strong> hold coefficients fixed using mean training-period IC, without HMM inputs.</p></div></div>
+<figure class="figure"><img src="assets/hmm-factor-weight-heatmap.png" alt="Heatmap of thirteen signed normalized factor weights across HMM regimes 0, 1 and 2." loading="lazy"><figcaption>Training-period normalized regime-conditional IC weights. Negative coefficients for momentum and volatility factors appear across all three inferred states, while beta and the relative importance of momentum vary between states. Regime labels are arbitrary statistical state IDs, not predefined economic regimes.</figcaption></figure>
+</section>
+<section id="results"><div class="eyebrow">03 / Empirical comparison</div><h2>Preliminary historical results</h2>
+<p class="muted">After correcting the forward-return label and replacing whole-sequence test inference with causal filtering, the prototype was rerun with a static factor-weight baseline. The HMM-conditioned portfolios showed higher historical returns and return/volatility ratios than the static approach in this particular test window.</p>
+<figure class="figure"><img src="assets/hmm-three-strategy-nav.png" alt="User-generated historical NAV chart with soft HMM, hard HMM and static IC factor allocation between October 2024 and April 2026." loading="lazy"><figcaption>Figure captured from the corrected local research run. The prototype plots cumulative holding-period outcomes against rebalance dates; it should not be read as a daily marked-to-market, executable NAV series.</figcaption></figure>
+<div class="tblwrap"><table><thead><tr><th>Preliminary metric</th><th>Static IC</th><th>Soft HMM</th><th>Hard HMM</th></tr></thead><tbody>
+<tr><td>Total return</td><td>22.06%</td><td>33.65%</td><td>33.85%</td></tr>
+<tr><td>Annualized return</td><td>14.13%</td><td>21.21%</td><td>21.33%</td></tr>
+<tr><td>Annualized volatility</td><td>14.11%</td><td>17.38%</td><td>17.55%</td></tr>
+<tr><td>Annualized return / volatility*</td><td>1.002</td><td>1.220</td><td>1.215</td></tr>
+<tr><td>Max drawdown</td><td>-7.69%</td><td>-8.68%</td><td>-8.93%</td></tr>
+<tr><td>Rebalances</td><td>19</td><td>19</td><td>19</td></tr>
+</tbody></table></div>
+<p class="subtle">*The original project's “Sharpe-like” statistic divides the reported annualized return by annualized volatility. It is not a conventional excess-return Sharpe ratio. These figures are exploratory backtest outputs, not independently validated trading performance.</p>
+<div class="callout"><strong>What the comparison suggests.</strong> Soft and Hard HMM variants track closely, consistent with strongly concentrated state probabilities (average maximum filtered posterior ≈95.5% across 393 test observations). The static baseline diverges more substantially, providing a useful starting point for evaluating whether regime conditioning adds value.</div>
+</section>
+<section id="lessons"><div class="eyebrow">04 / Research practice</div><h2>Implementation lessons and boundaries</h2>
+<div class="two"><div class="box"><h3>Time-aware engineering</h3><p>The original experiment prompted two substantive fixes: aligning 20-day forward-return targets to dates after the signal, and using causal HMM filtering for test-period state estimation. These fixes were made before the reported three-way comparison.</p></div><div class="box"><h3>Why this is still a prototype</h3><p>Point-in-time fundamental availability, missing-target universe selection, implementation timing, return accounting and transaction costs have not all been independently audited. The sample also includes only 19 rebalances. Results are not evidence of investable alpha.</p></div></div>
+<p class="muted">The central takeaway is methodological: a model can identify state-dependent factor relationships, but the investment significance of those relationships must be established with time-consistent evaluation and credible simpler baselines.</p>
+</section>
+<section id="code"><div class="eyebrow">05 / Implementation</div><h2>Research from raw data to portfolio diagnostics</h2>
+<p class="muted">The Python project is organized into data construction, chronological splitting, latent-state inference, dynamic factor scoring, portfolio simulation and research notebooks. This case study presents selected results without publishing the underlying licensed raw market data.</p>
+<a class="button" href="./index.html#research">← Return to research portfolio</a>
+</section>
+</main><footer><div class="wrap">Independent research case study · November 2026 · No live trading performance claim</div></footer>
+</body></html>
