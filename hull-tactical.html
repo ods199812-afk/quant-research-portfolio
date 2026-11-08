@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Exploratory Hull Tactical Kaggle research on market return forecasting, feature stability, and volatility diagnostics using Ridge and LightGBM.">
+<title>Market Return Prediction &amp; Volatility Diagnostics | Quant Research</title>
+<style>
+:root{--navy:#14283b;--teal:#135d77;--muted:#657a8b;--text:#43576b;--line:#dbe5e9;--panel:#f6f9fb}
+*{box-sizing:border-box}body{margin:0;color:var(--navy);background:white;font:15px/1.72 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}.wrap{width:min(1060px,calc(100% - 48px));margin:auto}
+header{background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:20px;letter-spacing:-.05em;font-weight:800;color:var(--navy)}.brand span{color:var(--teal)}.back{font-weight:700;font-size:13px}
+.hero{padding:68px 0 55px;background:radial-gradient(circle at 92% 12%,#e6f3f6,transparent 35%),linear-gradient(165deg,#fff,#f7fafb);border-bottom:1px solid var(--line)}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:850;color:var(--teal)}h1{font-size:clamp(35px,5.5vw,61px);line-height:1.13;letter-spacing:-.05em;margin:15px 0 16px;max-width:890px}
+.lead{font-size:18px;max-width:800px;color:var(--text);line-height:1.65}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:21px}.tag{border:1px solid #cbdfe5;background:#f1f7f9;padding:5px 9px;border-radius:5px;font-size:11px;font-weight:700;color:#2f6073}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:30px}.metric{border:1px solid #dbe7ec;background:rgba(255,255,255,.85);padding:18px 19px;border-radius:10px}.metric strong{display:block;font-size:24px;line-height:1.25;letter-spacing:-.04em}.metric span{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+section{padding:54px 0;border-bottom:1px solid #e7edef}h2{font-size:clamp(24px,3.1vw,31px);line-height:1.23;letter-spacing:-.03em;margin:9px 0 17px}p{color:var(--text)}.muted{color:var(--text)}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:25px 0}.step{padding:20px 18px;background:var(--panel);border:1px solid var(--line);border-radius:9px}.step b{display:block;line-height:1.3;font-size:14px}.step span{font-size:12px;color:var(--muted);display:block;margin-top:8px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.panel{border:1px solid var(--line);border-radius:10px;padding:20px 21px;background:white}.panel h3{font-size:16px;margin:0 0 7px}.panel p{font-size:13.5px;margin:0;color:var(--text)}
+.demo{border:1px solid var(--line);border-radius:12px;padding:24px 24px 19px;background:white;margin-top:23px}.dhead{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;align-items:start}.dhead h3{margin:0;font-size:18px}.stamp{font-size:11px;letter-spacing:.06em;font-weight:800;color:#946b38;background:#fbf5ea;border-radius:5px;padding:5px 9px}
+.weight-chart{display:grid;gap:18px;margin:25px 0 18px}.weight-row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:15px}.weight-label{font-size:12px;font-weight:750}.weight-bar{display:flex;height:25px;border-radius:5px;overflow:hidden;background:#edf3f5}.weight-bar span{display:block;min-width:0}.legend{display:flex;flex-wrap:wrap;gap:13px;font-size:12px;color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px;margin-top:22px}table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px}th,td{padding:12px 15px;text-align:right;border-bottom:1px solid #e8eef1}th:first-child,td:first-child{text-align:left}thead th{background:#f2f7f8;color:#476071}tr:last-child>*{border-bottom:0}tbody th{font-weight:650}
+.note{font-size:12px;color:var(--muted)}.callout{border-left:3px solid var(--teal);padding:15px 18px;background:var(--panel);color:var(--text);margin-top:22px;border-radius:5px}.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}code{background:#f0f5f7;padding:2px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:12px}pre{white-space:pre;overflow-x:auto;padding:18px;background:#122f42;color:#e7f1f5;border-radius:9px;font-size:13px;line-height:1.65}pre code{color:inherit;background:none;padding:0}
+.button{display:inline-block;background:var(--teal);color:white;padding:11px 16px;border-radius:6px;font-size:13px;font-weight:750;margin-top:9px}.button:hover{background:#0f4b61;color:white;text-decoration:none}footer{font-size:12px;color:var(--muted);padding:28px 0 35px}
+@media(max-width:750px){.metrics,.three{grid-template-columns:1fr 1fr}.pipeline{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.hero{padding:50px 0}section{padding:42px 0}}
+@media(max-width:490px){.wrap{width:calc(100% - 30px)}.metrics,.three,.pipeline{grid-template-columns:1fr}.weight-row{grid-template-columns:1fr;gap:6px}.dhead{display:block}.stamp{display:inline-block;margin-top:10px}}
+
+.stacks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px}
+.stack{border:1px solid var(--line);border-radius:10px;padding:20px;background:linear-gradient(170deg,#fbfdfd,#f4f8fa)}
+.stack .tiny{font-size:10px;color:var(--teal);letter-spacing:.12em;font-weight:850;text-transform:uppercase}
+.stack b{display:block;font-size:16px;margin-top:6px;line-height:1.4}
+.stack p{margin:8px 0 0;font-size:12px}
+.flowline{border-left:2px solid #ccdce3;margin:27px 0 8px 8px;padding:2px 0 2px 24px;display:grid;gap:21px}
+.phase{position:relative}
+.phase:before{content:'';position:absolute;left:-32px;top:5px;width:13px;height:13px;border-radius:50%;background:white;border:3px solid var(--teal)}
+.phase b{font-size:15px}.phase p{margin:4px 0 0;font-size:14px}
+.overline{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:800;color:var(--teal)}
+.finding{border:1px solid #dce7ec;border-radius:10px;padding:20px;background:white}
+.finding h3{font-size:16px;margin:5px 0 8px}.finding p{font-size:13px;margin:0}
+.notices{display:flex;align-items:flex-start;gap:12px;border-left:3px solid #bf9867;background:#faf7f1;padding:16px 19px;margin-top:21px;border-radius:5px;font-size:13px;color:#5d6571}
+.footlinks{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.footlinks a{padding:10px 14px;border:1px solid #cbdfe5;border-radius:6px;font-weight:750;font-size:13px}
+@media(max-width:750px){.stacks{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="wrap nav"><a class="brand" href="./index.html">JL<span>.</span></a><a class="back" href="./index.html#research">← All research projects</a></div></header>
+<div class="hero"><div class="wrap">
+<div class="eyebrow">Exploratory research / Financial time series × machine learning</div>
+<h1>Market Return Prediction &amp;<br>Volatility Diagnostics</h1>
+<p class="lead">Research notes from the Hull Tactical Kaggle dataset: testing simple and nonlinear forecasting approaches, investigating anonymous features, and examining whether historical volatility information is easier to model than noisy next-period returns.</p>
+<div class="tags"><span class="tag">Python</span><span class="tag">Ridge</span><span class="tag">LightGBM</span><span class="tag">Time-series OOF</span><span class="tag">Feature diagnostics</span><span class="tag">Volatility / QLIKE</span></div>
+<div class="stacks" aria-label="Research topics"><div class="stack"><span class="tiny">01 / Signal</span><b>Return predictability</b><p>Lagged market information and feature-to-target relationships.</p></div><div class="stack"><span class="tiny">02 / Models</span><b>Linear vs nonlinear</b><p>Ridge as a regularized baseline; LightGBM as a flexible comparator.</p></div><div class="stack"><span class="tiny">03 / Diagnostics</span><b>Stability over fit</b><p>Chronological evaluation, feature sensitivity and volatility-oriented tests.</p></div></div>
+</div></div>
+<main class="wrap">
+<section><div class="eyebrow">01 / Research question</div><h2>How much structure is there in noisy market targets?</h2>
+<p>The research began with a practical modeling question: can the available historical inputs support a prediction of the dataset's <code>forward_returns</code> target, or do apparent relationships fail to persist out of sample? A secondary line of inquiry looked at volatility and rolling risk characteristics as potentially more structured targets than short-horizon signed returns.</p>
+<p>The goal was to understand the information content and limitations of the dataset rather than assume that adding model complexity would generate a tradable edge.</p>
+</section>
+<section><div class="eyebrow">02 / Data and experiment design</div><h2>From raw columns to research hypotheses</h2>
+<div class="pipeline"><div class="step"><b>Chronological data</b><span>Time-ordered rows, observed lagged market signals and available target definitions</span></div><div class="step"><b>Feature research</b><span>Rolling return / variance proxies, anonymous V features and PCA-based inspection</span></div><div class="step"><b>Model comparison</b><span>Regularized linear baseline alongside tree-based modeling experiments</span></div><div class="step"><b>Diagnostics</b><span>Out-of-fold behavior, predictive correlation, feature stability and forecast loss</span></div></div>
+<div class="callout"><strong>Point-in-time discipline.</strong> Financial features need to respect the information available at the prediction timestamp. Time-ordered validation was used as a research principle; the full availability and leakage audit was not completed for a finalized trading system.</div>
+</section>
+<section><div class="eyebrow">03 / Work completed</div><h2>Experiments, not just model names</h2>
+<div class="flowline">
+<div class="phase"><span class="overline">Baseline</span><br><b>Ridge regression</b><p>Investigated a regularized linear mapping and used its behavior to frame whether apparent predictability required a complex model.</p></div>
+<div class="phase"><span class="overline">Nonlinear comparison</span><br><b>LightGBM</b><p>Explored relationships beyond a linear mapping, with attention to the difference between in-sample fit and time-ordered out-of-sample behavior.</p></div>
+<div class="phase"><span class="overline">Feature assessment</span><br><b>Anonymous features, PCA and diagnostic plots</b><p>Reviewed V-feature behavior, transformations and feature importance / stability, recognizing that anonymization limits economic interpretation.</p></div>
+<div class="phase"><span class="overline">Alternative target</span><br><b>Rolling variance and volatility</b><p>Tested lagged-variance predictors and investigated variance-forecast evaluation, including QLIKE, as a complementary research direction.</p></div>
+</div>
+</section>
+<section><div class="eyebrow">04 / What the exploratory work showed</div><h2>Lessons from weak signals and unstable models</h2>
+<div class="three">
+<div class="finding"><span class="overline">Signal strength</span><h3>Low signal-to-noise</h3><p>Simple feature correlations and model fit did not provide convincing evidence of a robust return-forecasting signal in the experiments reviewed.</p></div>
+<div class="finding"><span class="overline">Interpretability</span><h3>Anonymous features</h3><p>Opaque variables complicated hypothesis formation and made it difficult to link a statistical pattern to an economic mechanism.</p></div>
+<div class="finding"><span class="overline">Model discipline</span><h3>Evaluation matters</h3><p>The work shifted emphasis toward time-aware validation, reasonable baselines and understanding why model improvements fail to generalize.</p></div>
+</div>
+<div class="notices"><div><strong>Reporting boundary.</strong> This page documents exploratory work and methodological lessons. It does not report a competition rank, winning model, final score, trading strategy, live Sharpe ratio, or independently verified out-of-sample investment performance. Numerical experiment outputs and reproducible notebooks have not been included in this public case study.</div></div>
+</section>
+<section><div class="eyebrow">05 / Relevance</div><h2>Research judgment for systematic strategies</h2>
+<p>Many financial modeling tasks are constrained less by the choice between Ridge and boosting than by target definition, data availability, changing distributions and the translation from statistical forecasts to decisions. This exploratory project emphasizes those research constraints and complements the more complete <a href="./hmm-regime.html">regime-conditioned factor case study</a> and <a href="./portfolio-toolkit.html">portfolio optimization toolkit</a>.</p>
+<div class="footlinks"><a href="./index.html#research">← Return to research overview</a><a href="./hmm-regime.html">Read HMM case study →</a><a href="./portfolio-toolkit.html">View portfolio toolkit →</a></div>
+</section>
+</main>
+<footer><div class="wrap">Independent exploratory research · 2026 · No live investment performance claimed.</div></footer>
+</body></html>
